@@ -1,0 +1,243 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HANDORA | Botanical Skincare Rituals</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+          theme: {
+            extend: {
+              colors: {
+                'handora-green': '#4a7c59',
+                'handora-light': '#f2f8f2',
+                'handora-accent': '#c9da8f',
+                'handora-dark': '#1a2e21',
+              }
+            }
+          }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Be+Vietnam+Pro:wght@100;300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background-color: #f2f8f2;
+            color: #1a1a1a;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+        h1, h2, h3, h4, .font-serif { font-family: 'Lora', serif; }
+        
+        .glass-refined {
+            background: rgba(26, 46, 33, 0.45);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* High-end reveals */
+        .reveal-on-scroll {
+            opacity: 0;
+            filter: blur(10px);
+            transform: translateY(60px);
+            transition: all 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal-active {
+            opacity: 1;
+            filter: blur(0);
+            transform: translateY(0);
+        }
+
+        /* Mask Animation */
+        .reveal-mask {
+            display: block;
+            clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
+            transition: clip-path 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal-active .reveal-mask {
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+        }
+        .delay-300 { transition-delay: 300ms; }
+
+        /* Portrait Clear */
+        .portrait-clear {
+            filter: saturate(1);
+            transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .group:hover .portrait-clear {
+            filter: saturate(1.2);
+            transform: translateY(-10px);
+        }
+
+        .btn-shimmer {
+            background: linear-gradient(90deg, #4a7c59 0%, #639a73 50%, #4a7c59 100%);
+            background-size: 200% 100%;
+            transition: all 0.6s ease;
+        }
+        .btn-shimmer:hover { background-position: 100% 0; transform: translateY(-4px); }
+        
+        .nav-link { position: relative; padding-bottom: 2px; transition: all 0.3s; cursor: pointer; }
+        .nav-link::after {
+            content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 1.5px;
+            background: #4a7c59; transition: width 0.3s;
+        }
+        .nav-link.active::after, .nav-link:hover::after { width: 100%; }
+        .nav-link.active { color: #4a7c59; font-weight: 800; }
+
+        .parallax-scroll { will-change: transform; transition: transform 0.2s ease-out; }
+
+        /* Footer Map Styles */
+        .map-container {
+            filter: grayscale(1) contrast(1.2) opacity(0.6);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .store-card:hover .map-container {
+            filter: grayscale(0) contrast(1) opacity(1);
+            transform: translateY(-5px);
+        }
+        
+        @keyframes reveal {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-reveal { animation: reveal 0.5s ease-out forwards; }
+    </style>
+    <script type="importmap">
+    {
+      "imports": {
+        "@google/genai": "https://esm.sh/@google/genai@1.34.0",
+        "react": "https://esm.sh/react@^19.2.3",
+        "react/": "https://esm.sh/react@^19.2.3/"
+      }
+    }
+    </script>
+</head>
+<body class="antialiased">
+    <!-- Navigation -->
+    <nav id="navbar" class="fixed top-0 left-0 right-0 z-[100] transition-all duration-700 px-6 md:px-12 py-6">
+        <div class="mx-auto max-w-7xl glass rounded-[40px] px-8 py-4 flex justify-between items-center shadow-lg border border-white/50 bg-white/70 backdrop-blur-xl">
+            <div class="flex items-center gap-4 cursor-pointer group" onclick="navigate('home')">
+                <div class="w-10 h-10 bg-handora-green rounded-full flex items-center justify-center text-white text-sm font-serif shadow-md group-hover:rotate-12 transition-transform">H</div>
+                <span class="text-xl font-extrabold tracking-[0.4em] text-slate-800 hidden md:block">HANDORA</span>
+            </div>
+            
+            <div id="nav-links" class="hidden lg:flex gap-14 text-[11px] font-black uppercase tracking-[0.3em] text-slate-500">
+                <button onclick="navigate('home')" class="nav-link" data-page="home">Home</button>
+                <button onclick="navigate('shop')" class="nav-link" data-page="shop">Our Product</button>
+                <button onclick="navigate('about')" class="nav-link" data-page="about">About Us</button>
+            </div>
+
+            <div class="flex items-center gap-6">
+                <button class="relative p-2 group" onclick="navigate('cart')">
+                    <svg class="w-6 h-6 text-slate-700 group-hover:text-handora-green transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                    <span id="cart-count" class="absolute -top-1 -right-1 bg-handora-green text-white text-[9px] font-bold px-1.5 py-0.5 min-w-[18px] h-[18px] rounded-full flex items-center justify-center border-2 border-white shadow-md hidden">0</span>
+                </button>
+                <div id="auth-area">
+                    <button onclick="openAuth()" class="bg-handora-dark text-white text-[10px] font-bold uppercase tracking-widest px-8 py-3.5 rounded-full hover:bg-handora-green transition-all shadow-md">Sign In</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="app-root" class="min-h-screen"></main>
+
+    <!-- Professional E-commerce Footer with Maps -->
+    <footer class="bg-handora-dark text-white pt-32 pb-16 px-8 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-handora-green/5 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2"></div>
+        
+        <div class="container mx-auto">
+            <!-- Footer Top -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 mb-24 items-start">
+                <div class="lg:col-span-4">
+                    <h2 class="text-4xl font-bold tracking-[0.5em] mb-8 uppercase text-white">HANDORA</h2>
+                    <p class="text-white/50 text-lg italic leading-relaxed mb-10 max-w-sm">
+                        Born from the soil, refined by science. We connect modern souls with the pure intelligence of botanical extracts.
+                    </p>
+                    <div class="flex gap-8 items-center opacity-60">
+                        <div class="text-center">
+                            <div class="text-2xl mb-1">🌿</div>
+                            <span class="text-[8px] font-black uppercase tracking-widest">100% Vegan</span>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl mb-1">♻️</div>
+                            <span class="text-[8px] font-black uppercase tracking-widest">Zero Waste</span>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl mb-1">🐰</div>
+                            <span class="text-[8px] font-black uppercase tracking-widest">Cruelty Free</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2">
+                    <h4 class="font-bold uppercase tracking-widest text-[11px] mb-10 text-handora-accent">Ritual Nav</h4>
+                    <ul class="space-y-5 text-white/50 text-xs font-semibold uppercase tracking-[0.2em]">
+                       <li><button onclick="navigate('shop')" class="hover:text-white transition-colors">Collection</button></li>
+                       <li><button onclick="navigate('about')" class="hover:text-white transition-colors">Philosophy</button></li>
+                       <li><button onclick="navigate('quiz')" class="hover:text-white transition-colors">AI Quiz</button></li>
+                       <li><a href="#" class="hover:text-white transition-colors">Shipping</a></li>
+                    </ul>
+                </div>
+
+                <div class="lg:col-span-6">
+                    <h4 class="font-bold uppercase tracking-widest text-[11px] mb-10 text-handora-accent">Hệ Thống Chi Nhánh (Stores)</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="store-card group cursor-pointer">
+                            <div class="map-container w-full h-32 rounded-2xl overflow-hidden mb-4 border border-white/10">
+                                <iframe 
+                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.096814183571!2d105.85103431540242!3d21.02881189315266!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3135ab953357c963%3A0xef2a3a14050630b!2zNDUgTMO9IFRow6FpIFThu5UsIEhvw6BuIEtp4bq_bSwgSMOgIE7hu5lpLCBWaeG7h3QgTmFt!5e0!3m2!1svi!2s!4v1650000000000!5m2!1svi!2s" 
+                                    width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                            </div>
+                            <p class="text-white font-serif text-sm mb-1">Flagship Hanoi</p>
+                            <p class="text-white/40 text-[10px] italic leading-snug">45 Ly Thai To St., Hoan Kiem Dist.</p>
+                        </div>
+                        <div class="store-card group cursor-pointer">
+                            <div class="map-container w-full h-32 rounded-2xl overflow-hidden mb-4 border border-white/10">
+                                <iframe 
+                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.460232428398!2d106.70114091533414!3d10.77447606214254!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752f40a66d98fd%3A0x1d36cc4b96716a44!2zMTIgTMOqIEzhu6NpLCBC4bq_biBOZ2jDqSwgUXXhuq1uIDEsIFRow6BuaCBwaOG7kSBI4buTIENow60gTWluaCwgVmnhu4d0IE5hbQ!5e0!3m2!1svi!2s!4v1650000000001!5m2!1svi!2s" 
+                                    width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                            </div>
+                            <p class="text-white font-serif text-sm mb-1">Heritage HCMC</p>
+                            <p class="text-white/40 text-[10px] italic leading-snug">12 Le Loi Blvd., District 1</p>
+                        </div>
+                        <div class="store-card group cursor-pointer">
+                            <div class="map-container w-full h-32 rounded-2xl overflow-hidden mb-4 border border-white/10">
+                                <iframe 
+                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.8199127598855!2d103.8582773153545!3d1.2823015621404113!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31da1904592231d7%3A0x23a31da1e30a599!2sMarina%20Bay%20Sands%20Singapore!5e0!3m2!1sen!2s!4v1650000000002!5m2!1sen!2s" 
+                                    width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                            </div>
+                            <p class="text-white font-serif text-sm mb-1">Botanical SG</p>
+                            <p class="text-white/40 text-[10px] italic leading-snug">02-14 Marina Bay Sands</p>
+                        </div>
+                    </div>
+                    <div class="mt-10">
+                         <button class="w-full text-[9px] font-black uppercase tracking-[0.4em] border border-white/10 py-4 rounded-full hover:bg-white hover:text-handora-dark transition-all duration-500">View All Locations</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modals -->
+    <div id="auth-modal" class="fixed inset-0 z-[200] hidden flex items-center justify-center p-6">
+        <div class="absolute inset-0 bg-handora-dark/60 backdrop-blur-md" onclick="closeAuth()"></div>
+        <div class="glass w-full max-w-md p-10 rounded-[50px] shadow-2xl relative bg-white/80">
+            <h2 class="text-3xl font-serif text-slate-800 mb-2">Welcome</h2>
+            <p class="text-slate-500 mb-10 text-sm">Join the Handora ritual.</p>
+            <form id="login-form" onsubmit="handleAuth(event)" class="space-y-5">
+                <input type="email" id="auth-email" required class="w-full bg-slate-50/50 border border-slate-200 rounded-2xl px-6 py-4 focus:outline-none focus:ring-2 ring-handora-green/20" placeholder="Email Address (use 'admin' to test admin)">
+                <input type="password" required class="w-full bg-slate-50/50 border border-slate-200 rounded-2xl px-6 py-4 focus:outline-none focus:ring-2 ring-handora-green/20" placeholder="Password">
+                <button type="submit" class="w-full btn-shimmer text-white py-4 rounded-2xl font-bold shadow-lg mt-4 uppercase text-xs tracking-widest">Sign In</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="./index.tsx"></script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+
+{
+  "products": [
+    { "id": "1", "name": "Pomelo Peel Wash", "category": "Hand Wash", "price": 18.0, "description": "Natural pomelo extracts gently cleanse.", "imageUrl": "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&q=80&w=800" },
+    { "id": "2", "name": "Green Tea Revitalizer", "category": "Hand Wash", "price": 16.0, "description": "Antioxidant-rich soap for sensitive skin.", "imageUrl": "https://images.unsplash.com/photo-1600175107436-1199b44585ec?auto=format&fit=crop&q=80&w=800" }
+  ],
+  "users": [
+    { "id": "u1", "name": "Admin Handora", "email": "admin@handora.com", "role": "admin", "avatar": "images/avatars/admin.png" }
+  ]
+}
